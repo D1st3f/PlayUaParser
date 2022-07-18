@@ -1,26 +1,29 @@
+import os
+import time
 import requests
 from bs4 import BeautifulSoup
-
-print()
-print('If you want parse news - print "novyny"')
-print('If you want parse reviews - print "oglyady"')
-print('If you want parse posts - print "statti"')
-print('If you want parse videos - print "video"')
-print('If you want parse podcasts - print "podcasts"')
-print()
-
-type = input("Input type of content: ")
-
-
-URL = 'https://playua.net/'+type+'/'
 HEADERS = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"}
 
 def main():
-    news = parse()
+    URL = url_generate()
+    news = parse(URL)
     print_to_file(news)
 
+def when_start():
+    print()
+    print('If you want parse news - print "novyny"')
+    print('If you want parse reviews - print "oglyady"')
+    print('If you want parse posts - print "statti"')
+    print('If you want parse videos - print "video"')
+    print('If you want parse podcasts - print "podcasts"')
+    print()
+    return input("Input type of content: ")
+
+def url_generate():
+    URL = 'https://playua.net/'+when_start()+'/'
+    return URL
 
 def print_to_file (news):
 
@@ -28,8 +31,8 @@ def print_to_file (news):
     for new in news:
         create_line=create_line+new["title"]+"\n"+new["date"]+"\n"+new["text"]+"\n"+new["url"]+"\n"
         create_line = create_line + "\n"+ "\n"
-    name = type+".txt"
-    file = open(name, "w", encoding="utf-8")
+    name = str(time.strftime("%H:%M", time.localtime()))+".txt"
+    file = open(os.getcwd() + "/Finded/" + name, "w", encoding="utf-8")
     file.write(create_line)
     file.close()
 
@@ -43,7 +46,7 @@ def get_pages_count():
     return pages
 
 
-def parse ():
+def parse (URL):
     html=get_html(URL)
     if html.status_code== 200:
         news = get_content(html)
